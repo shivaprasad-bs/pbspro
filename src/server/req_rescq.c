@@ -312,7 +312,6 @@ req_confirmresv(struct batch_request *preq)
 	int		is_being_altered = 0;
 	char		*tmp_buf = NULL;
 	size_t		tmp_buf_size = 0;
-	int 		svr_init=FALSE;
 
 	if ((preq->rq_perm & (ATR_DFLAG_MGWR | ATR_DFLAG_OPWR)) == 0) {
 		req_reject(PBSE_PERM, 0, preq);
@@ -584,8 +583,7 @@ req_confirmresv(struct batch_request *preq)
 	 */
 	if (is_being_altered)
 		free_resvNodes(presv);
-	svr_init = FALSE;
-	rc = assign_resv_resc(presv, next_execvnode, svr_init);
+	rc = assign_resv_resc(presv, next_execvnode, FALSE);
 
 	if (rc != PBSE_NONE) {
 		free(next_execvnode);
