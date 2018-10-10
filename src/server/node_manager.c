@@ -7003,9 +7003,6 @@ set_nodes(void *pobj, int objtype, char *execvnod_in, char **execvnod_out, char 
 	int		cpu_licenses_needed = 0;
 	int		cur_licneed = 0;
 	attribute	deallocated_attr;
-	struct work_task *pwt;
-	extern void resv_retry_handler(struct work_task *ptask);
-
 
 	if (ehbufsz == 0) {
 		/* allocate the basic buffer for exec_host string */
@@ -7131,22 +7128,16 @@ set_nodes(void *pobj, int objtype, char *execvnod_in, char **execvnod_out, char 
 				} 
 				else {
 					if(presv->ri_qs.ri_state == RESV_UNCONFIRMED) {
-						/* Set a work task to initiate a scheduling cycle when the time to check
-						 * for alternate nodes to assign the reservation comes
-	 					*/
-						if ((pwt = set_task(WORK_Timed, time_now+10, resv_retry_handler, presv)) != NULL) {
-							/* set things so that the reservation going away will result in
-							 * any "yet to be processed" work tasks also going away
-							 */
-							append_link(&presv->ri_svrtask, &pwt->wt_linkobj, pwt);
-						}
-
 						free(phowl);
                 	                	free(execvncopy);
                         	      		return (PBSE_BAD_NODE_STATE);
 					}
-					else
+					else {
 						resv_setResvState(presv, RESV_DEGRADED, RESV_DEGRADED);
+						free(phowl);
+						free(execvncopy);
+						return (PBSE_BAD_NODE_STATE);
+					}
 				}
                         }
 
